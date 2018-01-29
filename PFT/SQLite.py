@@ -66,13 +66,30 @@ def create_acct_object(conn, name):
     return acct
 
 
-def create_grp(conn, name):
+def list_accts(conn):
+    pass
+
+
+def create_grp(conn, id, name):
     """Create a new group in grops table."""
     cur = conn.cursor()
     try:
-        cur.execute(d.sql_cmd['createGrp'], name)
+        info = (id, name)
+        cur.execute(d.sql_cmd['createGrp'], info)
     except Error as e:
         print(e)
+
+
+def list_groups(conn):
+    cur = conn.cursor()
+    cur.execute(d.sql_cmd['listGroups'])
+    lst = cur.fetchall()
+    grp_ids = []
+    grp_names = []
+    for g in lst:
+        grp_ids.append(int(g[0]))
+        grp_names.append(str(g[1]))
+    return grp_ids, grp_names
 
 
 def create_env(conn, env):
@@ -107,11 +124,11 @@ def create_transfer(conn, t):
         print(e, 'trans')
 
 
-def fund_env(conn, name, amt):
-    pool = create_env_object(conn, 'Income Pool')
-    env = create_env_object(conn, name)
-    t = pool.envTransfer(env, amt)
+def env_trans(conn, fromName, toName, amt):
+    fromEnv = create_env_object(conn, fromName)
+    toEnv = create_env_object(conn, toName)
+    t = fromEnv.envTransfer(toEnv, amt)
     cur = conn.cursor()
     create_transfer(conn, t)
-    cur.execute(d.sql_cmd['updateEnv'], (pool.amt, pool.name))
-    cur.execute(d.sql_cmd['updateEnv'], (env.amt, env.name))
+    cur.execute(d.sql_cmd['updateEnv'], (fromEnv.amt, fromEnv.name))
+    cur.execute(d.sql_cmd['updateEnv'], (toEnv.amt, toEnv.name))

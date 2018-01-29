@@ -6,6 +6,7 @@ sql_cmd = {'accountsTable': '''CREATE TABLE IF NOT EXISTS accounts (
                                     acct_amt  DECIMAL NOT NULL
                                 );''',
            'groupsTable': '''CREATE TABLE IF NOT EXISTS groups (
+                                    group_id INTEGER NOT NULL UNIQUE,
                                     group_name STRING PRIMARY KEY NOT NULL
                                 );''',
            'envelopesTable': '''CREATE TABLE IF NOT EXISTS envelopes (
@@ -35,8 +36,9 @@ sql_cmd = {'accountsTable': '''CREATE TABLE IF NOT EXISTS accounts (
            'selectAcctName': '''SELECT acct_type, acct_name, acct_amt
                                 FROM accounts WHERE acct_name = ''',
            'updateAcct': '''.''',
-           'createGrp': '''INSERT INTO  groups (group_name)
-                                            VALUES(?) ''',
+           'createGrp': '''INSERT INTO  groups (group_id, group_name)
+                                            VALUES(?,?) ''',
+           'listGroups': '''SELECT group_id, group_name FROM groups''',
            'createEnv': '''INSERT INTO  envelopes (env_group,env_name,env_amt)
                                             VALUES(?,?,?) ''',
            'selectEnvName': '''SELECT env_group, env_name, env_amt

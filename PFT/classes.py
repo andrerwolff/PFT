@@ -37,8 +37,6 @@ class envelope(container):
 
     def envTransfer(self, envIn, amt, memo=''):
         self.amt -= amt
-        print(type(amt))
-        print(type(envIn.amt))
         envIn.amt = envIn.amt + amt
         t = transaction(self, envIn, amt, 'transfer', memo)
         return t
