@@ -100,7 +100,6 @@ def list_accts(conn):
     return acct_ids, acct_names, acct_amts
 
 
-
 def create_grp(conn, id, name):
     """Create a new group in grops table."""
     cur = conn.cursor()
