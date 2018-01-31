@@ -23,14 +23,14 @@ def main():
     f.env_init(conn)
 
     # Set up accounts
-    #os.system('clear')
+    os.system('clear')
     answer = input('Would you like to open accounts? (y/n): ')
     while answer == 'y':
         f.new_acct_i(conn)
         answer = input('Would you like to open another account? (y/n): ')
 
     # Set up envelopes
-    #os.system('clear')
+    os.system('clear')
     answer = input('Would you like to create a new envelope? (y/n): ')
     while answer == 'y':
         f.new_env_i(conn)

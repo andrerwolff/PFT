@@ -45,15 +45,16 @@ def new_acct_i(conn):
 
 def new_env_i(conn):
     name = input('Envelope Name: ')
-    group = input('Envelope Group (press * for list): ')
+    group = input('Envelope Group (* for list): ')
     if group == '*':
         ids, names = print_groups(conn)
-        i = int(input('Select a group by number: '))
-        if i in ids:
-            if i == 9:
-                group = input("Envelope Group Name: ")
-            else:
-                group = names[i-1]
+        while True:
+            i = input('Select a group by number ("q" to quit): ')
+            if i == 'q':
+                return
+            elif int(i) in ids:
+                group = names[int(i)-1]
+                break
     env = c.envelope(group, name)
     SQL.create_env(conn, env)
     print(name + ' envelope created in ' + group + ' group.')
@@ -61,10 +62,24 @@ def new_env_i(conn):
 
 
 def print_options():
-    #os.system('clear')
+    os.system('clear')
     print('Choose and action from the list.')
     for i in range(len(d.OPTIONS_P)):
         print(':: {}'.format(d.OPTIONS_P[i]))
+
+
+def print_accts(conn):
+    ids, names, amts = SQL.list_accts(conn)
+    for i in range(len(ids)):
+        print(':: {} - {}: {}'.format(ids[i], names[i], amts[i]))
+    return ids, names, amts
+
+
+def print_envelopes(conn):
+    ids, names, amts = SQL.list_envs(conn)
+    for i in range(len(ids)):
+        print(':: {} - {}: {}'.format(ids[i], names[i], amts[i]))
+    return ids, names, amts
 
 
 def print_groups(conn):
@@ -75,25 +90,87 @@ def print_groups(conn):
 
 
 def fund(conn):
-    name = input('Which envelope do you want to fund: ')
+    name = input('Which envelope do you want to fund (* for list): ')
+    if name == '*':
+        ids, names, amts = print_envelopes(conn)
+        while True:
+            i = input('Select a envelope by number ("q" to quit): ')
+            if i == 'q':
+                return
+            elif int(i) in ids:
+                name = names[int(i)-1]
+                break
     amt = int(input('How much do you want to fund: '))
     SQL.env_trans(conn, 'Income Pool', name, amt)
     conn.commit()
 
 
-def new_env(conn):
-    pass
-
-
-def new_acct(conn):
-    pass
-
-
 def env_trans(conn):
-    fromName = input('Which envelope do you want to transfer from: ')
-    toName = input('Which envelope do you want to transfer to: ')
+    fromName = input('Which envelope do you want to\
+transfer from (* for list): ')
+    if fromName == '*':
+        ids, names, amts = print_envelopes(conn)
+        while True:
+            i = input('Select a envelope by number ("q" to quit): ')
+            if i == 'q':
+                return
+            elif int(i) in ids:
+                fromName = names[int(i)-1]
+                break
+    toName = input('Which envelope do you want to transfer to (* for list): ')
+    if toName == '*':
+        ids, names, amts = print_envelopes(conn)
+        while True:
+            i = input('Select a envelope by number ("q" to quit): ')
+            if i == 'q':
+                return
+            elif int(i) in ids:
+                toName = names[int(i)-1]
+                break
     amt = int(input('How much do you want to transfer: '))
     SQL.env_trans(conn, fromName, toName, amt)
+    conn.commit()
+
+
+def deposit(conn):
+    name = input('Deposit into which account(* for list): ')
+    if name == '*':
+        ids, names, amts = print_accts(conn)
+        while True:
+            i = input('Select a acount by number ("q" to quit): ')
+            if i == 'q':
+                return
+            elif int(i) in ids:
+                name = names[int(i)-1]
+                break
+    amt = int(input('How much is the deposit: '))
+    SQL.acct_dep(conn, name, amt)
+    conn.commit()
+
+
+def withdraw(conn):
+    acct_name = input('Withdraw from which account(* for list): ')
+    if acct_name == '*':
+        ids, names, amts = print_accts(conn)
+        while True:
+            i = input('Select a acount by number ("q" to quit): ')
+            if i == 'q':
+                return
+            elif int(i) in ids:
+                acct_name = names[int(i)-1]
+                break
+    env_name = input('Withdraw from which envelope(* for list): ')
+    if env_name == '*':
+        ids, names, amts = print_envelopes(conn)
+        while True:
+            i = input('Select an envelope by number ("q" to quit): ')
+            if i == 'q':
+                return
+            elif int(i) in ids:
+                env_name = names[int(i)-1]
+                break
+    amt = int(input('How much is the withdrawal: '))
+    SQL.acct_with(conn, acct_name, env_name, amt)
     conn.commit()
 
 

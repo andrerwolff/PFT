@@ -44,8 +44,10 @@ class envelope(container):
 
 class transaction:
     def __init__(self, a, b, amt, type, memo=''):
-        self.tOut = a
-        self.tIn = b
+        # transfer out - deposit acct - withdrawal acct
+        self.tA = a
+        # transfer in - pool env - withdrawal env
+        self.tB = b
         self.amt = amt
         self.type = type
         self.memo = memo

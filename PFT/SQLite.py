@@ -66,8 +66,39 @@ def create_acct_object(conn, name):
     return acct
 
 
+def acct_dep(conn, name, amt):
+    acct = create_acct_object(conn, name)
+    pool = create_env_object(conn, 'Income Pool')
+    t = acct.deposit(pool, amt)
+    cur = conn.cursor()
+    create_deposit(conn, t)
+    cur.execute(d.sql_cmd['updateEnv'], (pool.amt, pool.name))
+    cur.execute(d.sql_cmd['updateAcct'], (acct.amt, acct.name))
+
+
+def acct_with(conn, acct_name, env_name, amt):
+    acct = create_acct_object(conn, acct_name)
+    env = create_env_object(conn, env_name)
+    t = acct.withdraw(env, amt)
+    cur = conn.cursor()
+    create_withdrawal(conn, t)
+    cur.execute(d.sql_cmd['updateEnv'], (env.amt, env.name))
+    cur.execute(d.sql_cmd['updateAcct'], (acct.amt, acct.name))
+
+
 def list_accts(conn):
-    pass
+    cur = conn.cursor()
+    cur.execute(d.sql_cmd['listAccts'])
+    lst = cur.fetchall()
+    acct_ids = []
+    acct_names = []
+    acct_amts = []
+    for e in lst:
+        acct_ids.append(int(e[0]))
+        acct_names.append(str(e[1]))
+        acct_amts.append(float(e[2]))
+    return acct_ids, acct_names, acct_amts
+
 
 
 def create_grp(conn, id, name):
@@ -114,10 +145,44 @@ def create_env_object(conn, name):
     return env
 
 
+def list_envs(conn):
+    cur = conn.cursor()
+    cur.execute(d.sql_cmd['listEnvs'])
+    lst = cur.fetchall()
+    env_ids = []
+    env_names = []
+    env_amts = []
+    for e in lst:
+        env_ids.append(int(e[0]))
+        env_names.append(str(e[1]))
+        env_amts.append(float(e[2]))
+    return env_ids, env_names, env_amts
+
+
 def create_transfer(conn, t):
     try:
         info = (t.date, t.type, t.memo, t.amt,
-                '', '', t.tIn.name, t.tOut.name)
+                '', '', t.tB.name, t.tA.name)
+        cur = conn.cursor()
+        cur.execute(d.sql_cmd['createTrans'], info)
+    except Error as e:
+        print(e, 'trans')
+
+
+def create_deposit(conn, t):
+    try:
+        info = (t.date, t.type, t.memo, t.amt,
+                t.tA.name, '', t.tB.name, '')
+        cur = conn.cursor()
+        cur.execute(d.sql_cmd['createTrans'], info)
+    except Error as e:
+        print(e, 'trans')
+
+
+def create_withdrawal(conn, t):
+    try:
+        info = (t.date, t.type, t.memo, t.amt,
+                '', t.tA.name, '', t.tB.name)
         cur = conn.cursor()
         cur.execute(d.sql_cmd['createTrans'], info)
     except Error as e:

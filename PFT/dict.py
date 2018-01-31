@@ -35,14 +35,18 @@ sql_cmd = {'accountsTable': '''CREATE TABLE IF NOT EXISTS accounts (
                                             VALUES(?,?,?) ''',
            'selectAcctName': '''SELECT acct_type, acct_name, acct_amt
                                 FROM accounts WHERE acct_name = ''',
-           'updateAcct': '''.''',
+           'listAccts': '''SELECT acct_id,acct_name,acct_amt FROM accounts''',
+           'updateAcct': '''UPDATE accounts
+                            set acct_amt = ?
+                            WHERE acct_name = ?''',
            'createGrp': '''INSERT INTO  groups (group_id, group_name)
                                             VALUES(?,?) ''',
-           'listGroups': '''SELECT group_id, group_name FROM groups''',
+           'listGroups': '''SELECT group_id,group_name FROM groups''',
            'createEnv': '''INSERT INTO  envelopes (env_group,env_name,env_amt)
                                             VALUES(?,?,?) ''',
            'selectEnvName': '''SELECT env_group, env_name, env_amt
                                 FROM envelopes WHERE env_name = ''',
+           'listEnvs': '''SELECT env_id,env_name,env_amt FROM envelopes''',
            'updateEnv': ''' UPDATE envelopes
                             SET env_amt = ?
                             WHERE env_name = ?''',
@@ -57,8 +61,9 @@ sql_cmd = {'accountsTable': '''CREATE TABLE IF NOT EXISTS accounts (
 ENV_GROUPS = {1: '*', 2: 'Bills', 3: 'Daily', 4: 'Monthly', 5: 'Periodic',
               6: 'Giving', 7: 'Goals', 8: 'Other'}
 
-OPTIONS = {'f': f.fund, 'a': f.new_acct_i, 'e': f.new_env_i,
-           't': f.env_trans, 'q': f.quit}
+OPTIONS = {'f': f.fund, 'a': f.new_acct_i, 'e': f.new_env_i, 'd': f.deposit,
+           'w': f.withdraw, 't': f.env_trans, 'q': f.quit}
 
-OPTIONS_P = ('a - New Account', 'e - New Envelope', 'f - Fund Envelope',
+OPTIONS_P = ('a - New Account', 'e - New Envelope', 'd - Make Deposit',
+             'w - Make Withdrawal', 'f - Fund Envelope',
              't - Transfer Between Envelopes', 'q - Quit PFT')
