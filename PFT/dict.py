@@ -1,3 +1,6 @@
+"""Dictionaries used in PFT application."""
+
+
 from PFT import functions as f
 sql_cmd = {'accountsTable': '''CREATE TABLE IF NOT EXISTS accounts (
                                     acct_id   INTEGER PRIMARY KEY NOT NULL,
@@ -62,8 +65,10 @@ ENV_GROUPS = {1: '*', 2: 'Bills', 3: 'Daily', 4: 'Monthly', 5: 'Periodic',
               6: 'Giving', 7: 'Goals', 8: 'Other'}
 
 OPTIONS = {'f': f.fund, 'a': f.new_acct_i, 'e': f.new_env_i, 'd': f.deposit,
-           'w': f.withdraw, 't': f.env_trans, 'q': f.quit}
+           'w': f.withdraw, 't': f.env_trans, 'la': f.print_accts,
+           'le': f.print_envs, 'q': f.quit}
 
 OPTIONS_P = ('a - New Account', 'e - New Envelope', 'd - Make Deposit',
              'w - Make Withdrawal', 'f - Fund Envelope',
-             't - Transfer Between Envelopes', 'q - Quit PFT')
+             't - Transfer Between Envelopes', 'la - Display Accounts',
+             'le - Display Envelopes', 'q - Quit PFT')

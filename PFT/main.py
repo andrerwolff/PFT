@@ -2,7 +2,6 @@
 
 TODO:
     *Input verification on all inputs
-    *Develop main loop to keep in app with decision nodes
     *Impliment GUI
 """
 import os

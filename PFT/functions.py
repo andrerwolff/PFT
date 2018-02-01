@@ -1,3 +1,6 @@
+"""Functions used in PFT application."""
+
+
 from PFT import classes as c
 from PFT import dict as d
 from PFT import SQLite as SQL
@@ -23,45 +26,82 @@ def table_init(conn):
 
 
 def env_init(conn):
-    """Initialize envelope groups and initial envelopes."""
+    """Initialize envelope groups and default envelope."""
     for k in d.ENV_GROUPS:
         SQL.create_grp(conn, k, d.ENV_GROUPS[k])
         print(d.ENV_GROUPS[k], 'group created.')
-    # Create utility group and income pool envelope by default.
+    # Create income pool envelope object.
     e = c.envelope(d.ENV_GROUPS[1], 'Income Pool')
+    # Use object to create entry in envelopes table.
     SQL.create_env(conn, e)
     print(e.name, 'envelope created')
+    # Update database.
+    conn.commit
 
 
 def new_acct_i(conn):
+    """Creates a new entry in accounts table, uses user input.
+
+        TODO:   -input validation
+                    -type   :not blank
+                            :savings or checking others?
+                            :cast as lowercase for consistency
+                    -name   :not blank
+                    -amt    :not blank
+                            :number
+    """
+    # Determine type of account from input, cast as lowercase.
     type = input('Account Type: ').lower()
+    # Determine account name from input.
     name = input('Account Name: ')
-    amt = int(input('Account Amount: '))
+    # Determine opening balance in account from input, cast as float.
+    amt = float(input('Account Amount: '))
+    # Create account object using input information.
     acct = c.account(type, name, amt)
+    # Use object to create entry in accounts table.
     SQL.create_acct(conn, acct)
     print('{} account created, of {} type.'.format(acct.name, acct.type))
+    # Update database.
     conn.commit()
 
 
 def new_env_i(conn):
+    """Creates a new entry in envelopes table, uses user input.
+
+        TODO:   -input validation
+                    -name   :not blank
+                    -group  :not blank
+                            :in list of groups
+                -make new group if name not in group list
+    """
+    # Determine name of envelope from input.
     name = input('Envelope Name: ')
+    # Determine group of envelope from input, input * for list of groups.
     group = input('Envelope Group (* for list): ')
     if group == '*':
+        # Print envelop groups and return the info lists if needed.
         ids, names = print_groups(conn)
         while True:
+            # Select group by listed number.
             i = input('Select a group by number ("q" to quit): ')
             if i == 'q':
+                # If q input cancel envelope creation.
                 return
+            # If selection is in the id's of the groups, set name of group.
             elif int(i) in ids:
                 group = names[int(i)-1]
                 break
+    # Create envelope object from input information.
     env = c.envelope(group, name)
+    # Use object to create entry in envelopes table.
     SQL.create_env(conn, env)
     print(name + ' envelope created in ' + group + ' group.')
+    # Update database.
     conn.commit()
 
 
 def print_options():
+    """Print list of available options from option dictionary."""
     os.system('clear')
     print('Choose and action from the list.')
     for i in range(len(d.OPTIONS_P)):
@@ -69,30 +109,46 @@ def print_options():
 
 
 def print_accts(conn):
+    """Print list of accounts and balances."""
+    # Collect info on existing accounts.
     ids, names, amts = SQL.list_accts(conn)
     for i in range(len(ids)):
         print(':: {} - {}: {}'.format(ids[i], names[i], amts[i]))
+    # Needed to avoid auto clear when displaying accounts stand alone.
+    input('Enter to continue...')
+    # Return lists if needed.
     return ids, names, amts
 
 
-def print_envelopes(conn):
+def print_envs(conn):
+    """Print list of envelopes and balances."""
+    # Collect info on existing envelopes.
     ids, names, amts = SQL.list_envs(conn)
     for i in range(len(ids)):
         print(':: {} - {}: {}'.format(ids[i], names[i], amts[i]))
+    # Needed to avoid auto clear when displaying envelopes stand alone.
+    input('Enter to continue...')
+    # Return lists if needed.
     return ids, names, amts
 
 
 def print_groups(conn):
+    """Print list of groups"""
+    # Collect info on existing groups.
     ids, names = SQL.list_groups(conn)
     for i in range(len(ids)):
         print(':: {} - {}'.format(ids[i], names[i]))
+    # Un-comment if needed to avoid auto clear.
+    # input('Enter to continue...')
+    # Return lists if needed.
     return ids, names
 
 
 def fund(conn):
+    os.system('clear')
     name = input('Which envelope do you want to fund (* for list): ')
     if name == '*':
-        ids, names, amts = print_envelopes(conn)
+        ids, names, amts = print_envs(conn)
         while True:
             i = input('Select a envelope by number ("q" to quit): ')
             if i == 'q':
@@ -106,10 +162,11 @@ def fund(conn):
 
 
 def env_trans(conn):
+    os.system('clear')
     fromName = input('Which envelope do you want to\
 transfer from (* for list): ')
     if fromName == '*':
-        ids, names, amts = print_envelopes(conn)
+        ids, names, amts = print_envs(conn)
         while True:
             i = input('Select a envelope by number ("q" to quit): ')
             if i == 'q':
@@ -119,7 +176,7 @@ transfer from (* for list): ')
                 break
     toName = input('Which envelope do you want to transfer to (* for list): ')
     if toName == '*':
-        ids, names, amts = print_envelopes(conn)
+        ids, names, amts = print_envs(conn)
         while True:
             i = input('Select a envelope by number ("q" to quit): ')
             if i == 'q':
@@ -133,6 +190,7 @@ transfer from (* for list): ')
 
 
 def deposit(conn):
+    os.system('clear')
     name = input('Deposit into which account(* for list): ')
     if name == '*':
         ids, names, amts = print_accts(conn)
@@ -149,6 +207,7 @@ def deposit(conn):
 
 
 def withdraw(conn):
+    os.system('clear')
     acct_name = input('Withdraw from which account(* for list): ')
     if acct_name == '*':
         ids, names, amts = print_accts(conn)
@@ -161,7 +220,7 @@ def withdraw(conn):
                 break
     env_name = input('Withdraw from which envelope(* for list): ')
     if env_name == '*':
-        ids, names, amts = print_envelopes(conn)
+        ids, names, amts = print_envs(conn)
         while True:
             i = input('Select an envelope by number ("q" to quit): ')
             if i == 'q':

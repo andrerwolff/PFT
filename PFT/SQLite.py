@@ -1,7 +1,6 @@
 """SQLite related functionality."""
 
 import sqlite3
-import os
 from sqlite3 import Error
 from PFT import dict as d
 from PFT import classes as c
@@ -67,6 +66,7 @@ def create_acct_object(conn, name):
 
 
 def acct_dep(conn, name, amt):
+    """Create a deposit transaction into an account."""
     acct = create_acct_object(conn, name)
     pool = create_env_object(conn, 'Income Pool')
     t = acct.deposit(pool, amt)
@@ -77,6 +77,7 @@ def acct_dep(conn, name, amt):
 
 
 def acct_with(conn, acct_name, env_name, amt):
+    """Create a withdrawal transaction from an account."""
     acct = create_acct_object(conn, acct_name)
     env = create_env_object(conn, env_name)
     t = acct.withdraw(env, amt)
@@ -87,6 +88,7 @@ def acct_with(conn, acct_name, env_name, amt):
 
 
 def list_accts(conn):
+    """Gather info from accounts table and return lists."""
     cur = conn.cursor()
     cur.execute(d.sql_cmd['listAccts'])
     lst = cur.fetchall()
@@ -111,6 +113,7 @@ def create_grp(conn, id, name):
 
 
 def list_groups(conn):
+    """Gather info from groups table and return lists."""
     cur = conn.cursor()
     cur.execute(d.sql_cmd['listGroups'])
     lst = cur.fetchall()
@@ -145,6 +148,7 @@ def create_env_object(conn, name):
 
 
 def list_envs(conn):
+    """Gather info from envelopes table and return lists"""
     cur = conn.cursor()
     cur.execute(d.sql_cmd['listEnvs'])
     lst = cur.fetchall()
@@ -159,6 +163,7 @@ def list_envs(conn):
 
 
 def create_transfer(conn, t):
+    """Create new transaction entry for transfers using transaction object."""
     try:
         info = (t.date, t.type, t.memo, t.amt,
                 '', '', t.tB.name, t.tA.name)
@@ -169,6 +174,7 @@ def create_transfer(conn, t):
 
 
 def create_deposit(conn, t):
+    """Create new transaction entry for deposit using transaction object."""
     try:
         info = (t.date, t.type, t.memo, t.amt,
                 t.tA.name, '', t.tB.name, '')
@@ -179,6 +185,7 @@ def create_deposit(conn, t):
 
 
 def create_withdrawal(conn, t):
+    """Create new transaction entry for withdrawal using transacion object."""
     try:
         info = (t.date, t.type, t.memo, t.amt,
                 '', t.tA.name, '', t.tB.name)
@@ -189,6 +196,7 @@ def create_withdrawal(conn, t):
 
 
 def env_trans(conn, fromName, toName, amt):
+    """Initiate a envelope transfer."""
     fromEnv = create_env_object(conn, fromName)
     toEnv = create_env_object(conn, toName)
     t = fromEnv.envTransfer(toEnv, amt)
