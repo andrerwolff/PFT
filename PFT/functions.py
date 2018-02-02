@@ -17,6 +17,17 @@ def clear():
         os.system('clear')
 
 
+def clear():
+    """
+    Clear prompt screen.
+    Windows and Linux use different commands causing an error on Windows.
+    """
+    if os.name == 'nt':
+        os.system('cls')
+    else:
+        os.system('clear')
+
+
 def table_init(conn):
     """Initialize tables for first time setup."""
     clear()
@@ -112,7 +123,6 @@ def new_env_i(conn):
 
 def print_options():
     """Print list of available options from option dictionary."""
-    clear()
     print('Choose and action from the list.')
     for i in range(len(d.OPTIONS_P)):
         print(':: {}'.format(d.OPTIONS_P[i]))
