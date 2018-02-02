@@ -6,23 +6,13 @@ from PFT import dict as d
 from PFT import SQLite as SQL
 import os
 
-def clear():
-    """
-    Clear prompt screen.
-    Windows and Linux use different commands causing an error on Windows.
-    """
-    if os.name == 'nt': # Windows
-        os.system('cls')
-    else:
-        os.system('clear')
-
 
 def clear():
     """
     Clear prompt screen.
     Windows and Linux use different commands causing an error on Windows.
     """
-    if os.name == 'nt':
+    if os.name == 'nt':  # Windows
         os.system('cls')
     else:
         os.system('clear')
