@@ -6,6 +6,16 @@ from PFT import dict as d
 from PFT import SQLite as SQL
 import os
 
+def clear():
+    """
+    Clear prompt screen.
+    Windows and Linux use different commands causing an error on Windows.
+    """
+    if os.name == 'nt': # Windows
+        os.system('cls')
+    else:
+        os.system('clear')
+
 
 def clear():
     """
@@ -20,7 +30,7 @@ def clear():
 
 def table_init(conn):
     """Initialize tables for first time setup."""
-    os.system('clear')
+    clear()
     print('accounts table...', end='')
     SQL.create_table(conn, d.sql_cmd['accountsTable'])
     print('DONE.')
@@ -155,7 +165,7 @@ def print_groups(conn):
 
 
 def fund(conn):
-    os.system('clear')
+    clear()
     name = input('Which envelope do you want to fund (* for list): ')
     if name == '*':
         ids, names, amts = print_envs(conn)
@@ -172,7 +182,7 @@ def fund(conn):
 
 
 def env_trans(conn):
-    os.system('clear')
+    clear()
     fromName = input('Which envelope do you want to\
 transfer from (* for list): ')
     if fromName == '*':
@@ -200,7 +210,7 @@ transfer from (* for list): ')
 
 
 def deposit(conn):
-    os.system('clear')
+    clear()
     name = input('Deposit into which account(* for list): ')
     if name == '*':
         ids, names, amts = print_accts(conn)
@@ -217,7 +227,7 @@ def deposit(conn):
 
 
 def withdraw(conn):
-    os.system('clear')
+    clear()
     acct_name = input('Withdraw from which account(* for list): ')
     if acct_name == '*':
         ids, names, amts = print_accts(conn)

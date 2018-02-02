@@ -24,6 +24,7 @@ def main():
     answer = ''
     # Set up accounts
     f.clear()
+    
     if SQL.check_empty_db(conn):
         answer = input('Would you like to open accounts? (y/n): ')
         while answer == 'y':
