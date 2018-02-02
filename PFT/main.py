@@ -9,17 +9,6 @@ from PFT import SQLite as SQL
 from PFT import functions as f
 from PFT import dict as d
 
-def clear():
-    """
-    Clear prompt screen.
-    Windows and Linux use different commands causing an error on Windows.
-    """
-    if os.name == 'nt':
-        os.system('cls')
-    else:
-        os.system('clear')
-        
-
 def main():
     """Run main loop for application."""
     # Set database path
@@ -32,15 +21,15 @@ def main():
     f.env_init(conn)
 
     # Set up accounts
-    clear()
-    
+    f.clear()
+
     answer = input('Would you like to open accounts? (y/n): ')
     while answer == 'y':
         f.new_acct_i(conn)
         answer = input('Would you like to open another account? (y/n): ')
 
     # Set up envelopes
-    clear()
+    f.clear()
     answer = input('Would you like to create a new envelope? (y/n): ')
     while answer == 'y':
         f.new_env_i(conn)
