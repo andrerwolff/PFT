@@ -29,7 +29,7 @@ def check_empty_db(conn):
         print('Database is Empty. Preparing Database...')
         return True
     else:
-        print('Welsome back, setup already complete!')
+        print('Welcome back, setup already complete!')
         return False
 
 
