@@ -21,18 +21,27 @@ def clear():
 def table_init(conn):
     """Initialize tables for first time setup."""
     clear()
+
     print('accounts table...', end='')
     SQL.create_table(conn, d.sql_cmd['accountsTable'])
     print('DONE.')
+
     print('groups table...', end='')
     SQL.create_table(conn, d.sql_cmd['groupsTable'])
     print('DONE.')
+
     print('envelopes table...', end='')
     SQL.create_table(conn, d.sql_cmd['envelopesTable'])
     print('DONE.')
+
     print('transactions table...', end='')
     SQL.create_table(conn, d.sql_cmd['transactionsTable'])
+    print('DONE')
+
+    print('payee table...', end='')
+    SQL.create_table(conn, d.sql_cmd['payeesTable'])
     print('DONE.')
+
     print('Tables created')
 
 
