@@ -103,7 +103,7 @@ def list_accts(conn):
 
 
 def create_grp(conn, id, name):
-    """Create a new group in grops table."""
+    """Create a new group in groups table."""
     cur = conn.cursor()
     try:
         info = (id, name)

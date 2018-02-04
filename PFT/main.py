@@ -7,6 +7,7 @@ TODO:
 import os
 from PFT import SQLite as SQL
 from PFT import functions as f
+from PFT import validation as v
 from PFT import dict as d
 
 
@@ -40,7 +41,7 @@ def main():
     # main decision loop, quits when user enters 'q'.
     while answer != 'q':
         f.print_options()
-        answer = input('What would you like to do: ')
+        answer = v.menu_choice()
         d.OPTIONS[answer](conn)
         f.clear()
     conn.commit()
