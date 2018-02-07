@@ -32,8 +32,15 @@ sql_cmd = {'accountsTable': '''CREATE TABLE IF NOT EXISTS accounts (
                                     trans_env_to_id    INTEGER
                                     REFERENCES envelopes (env_id),
                                     trans_env_from_id  INTEGER
-                                    REFERENCES envelopes (env_id)
+                                    REFERENCES envelopes (env_id),
+                                    payee_id INTEGER
+                                    REFERENCES payees (payee_id)
                                 );''',
+            'payeesTable' : ''' CREATE TABLE IF NOT EXISTS payees (
+                                payee_id INTEGER PRIMARY KEY NOT NULL,
+                                payee_name STRING NOT NULL UNIQUE
+                                );''',
+
            'createAcct': '''INSERT INTO  accounts (acct_type,acct_name,acct_amt)
                                             VALUES(?,?,?) ''',
            'selectAcctName': '''SELECT acct_type, acct_name, acct_amt
