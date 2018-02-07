@@ -9,13 +9,13 @@ sql_cmd = {'accountsTable': '''CREATE TABLE IF NOT EXISTS accounts (
                                     acct_amt  DECIMAL NOT NULL
                                 );''',
            'groupsTable': '''CREATE TABLE IF NOT EXISTS groups (
-                                    group_id INTEGER NOT NULL UNIQUE,
-                                    group_name STRING PRIMARY KEY NOT NULL
+                                    group_id INTEGER PRIMARY KEY NOT NULL,
+                                    group_name STRING UNIQUE NOT NULL
                                 );''',
            'envelopesTable': '''CREATE TABLE IF NOT EXISTS envelopes (
                                     env_id INTEGER PRIMARY KEY NOT NULL,
                                     env_group STRING NOT NULL
-                                    REFERENCES groups (group_name),
+                                    REFERENCES groups (group_id),
                                     env_name STRING NOT NULL UNIQUE,
                                     env_amt DECIMAL NOT NULL
                                 );''',
@@ -36,7 +36,7 @@ sql_cmd = {'accountsTable': '''CREATE TABLE IF NOT EXISTS accounts (
                                     payee_id INTEGER
                                     REFERENCES payees (payee_id)
                                 );''',
-            'payeesTable' : ''' CREATE TABLE IF NOT EXISTS payees (
+           'payeesTable': '''CREATE TABLE IF NOT EXISTS payees (
                                 payee_id INTEGER PRIMARY KEY NOT NULL,
                                 payee_name STRING NOT NULL UNIQUE
                                 );''',
