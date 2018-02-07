@@ -162,12 +162,12 @@ def select_envelope(conn, mode):
             ids, names, amts = f.print_envs(conn)
             if mode == 'fund':
                 i = input("Envelope To Fund ('q' to quit): ")
-            if mode == 'transferFrom':
+            elif mode == 'transferFrom':
                 i = input("From Envelope ('q' to quit): ")
             elif mode == 'transferTo':
                 i = input("To Envelope ('q' to quit): ")
             else:
-                print('error in input validation')
+                print('error in input validation', mode)
             if i is not '' and not None:
                 try:
                     i = int(i)
@@ -197,7 +197,7 @@ def transfer_amt(conn, mode, env=None):
         envFrom = SQL.create_env_object(conn, env)
         limit = envFrom.amt
     else:
-        print('error in input validation')
+        print('error in input validation', mode)
     while True:
         if mode == 'fund':
             amt = input('Fund Amount: ')

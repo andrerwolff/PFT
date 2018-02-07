@@ -12,9 +12,10 @@ class container:
 
 
 class account(container):
-    def __init__(self, type, name, amt):
+    def __init__(self, type, name, amt, id=0):
         super().__init__(name, amt, 'acct')
         self.type = type + "_" + self.type
+        self.id = id
 
     def deposit(self, envIn, amt, memo=''):
         self.amt += amt
@@ -30,10 +31,11 @@ class account(container):
 
 
 class envelope(container):
-    def __init__(self, group, name, amt=0):
+    def __init__(self, group, name, amt=0, id=0):
         super().__init__(name, amt, 'env')
         self.group = group
         self.amt = amt
+        self.id = id
 
     def envTransfer(self, envIn, amt, memo=''):
         self.amt -= amt

@@ -60,8 +60,8 @@ def create_acct_object(conn, name):
     sql = "{}'{}'".format(d.sql_cmd['selectAcctName'], name)
     cur = conn.cursor()
     cur.execute(sql)
-    t, n, a = cur.fetchone()
-    acct = c.account(t, n, a)
+    i, t, n, a = cur.fetchone()
+    acct = c.account(t, n, a, id=i)
     return acct
 
 
@@ -140,10 +140,10 @@ def create_env_object(conn, name):
     sql = "{}'{}'".format(d.sql_cmd['selectEnvName'], name)
     cur = conn.cursor()
     cur.execute(sql)
-    g, n, a = cur.fetchone()
+    i, g, n, a = cur.fetchone()
     if type(a) is not int:
         a = 0
-    env = c.envelope(g, n, a)
+    env = c.envelope(g, n, amt=a, id=i)
     return env
 
 
@@ -166,7 +166,7 @@ def create_transfer(conn, t):
     """Create new transaction entry for transfers using transaction object."""
     try:
         info = (t.date, t.type, t.memo, t.amt,
-                '', '', t.tB.name, t.tA.name)
+                '', '', t.tB.id, t.tA.id)
         cur = conn.cursor()
         cur.execute(d.sql_cmd['createTrans'], info)
     except Error as e:
@@ -177,7 +177,7 @@ def create_deposit(conn, t):
     """Create new transaction entry for deposit using transaction object."""
     try:
         info = (t.date, t.type, t.memo, t.amt,
-                t.tA.name, '', t.tB.name, '')
+                t.tA.id, '', t.tB.id, '')
         cur = conn.cursor()
         cur.execute(d.sql_cmd['createTrans'], info)
     except Error as e:
@@ -188,7 +188,7 @@ def create_withdrawal(conn, t):
     """Create new transaction entry for withdrawal using transacion object."""
     try:
         info = (t.date, t.type, t.memo, t.amt,
-                '', t.tA.name, '', t.tB.name)
+                '', t.tA.id, '', t.tB.id)
         cur = conn.cursor()
         cur.execute(d.sql_cmd['createTrans'], info)
     except Error as e:
