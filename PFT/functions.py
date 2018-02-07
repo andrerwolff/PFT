@@ -151,7 +151,7 @@ def print_groups(conn):
 
 def fund(conn):
     clear()
-    name = v.select_enelope(conn, 'fund')
+    name = v.select_envelope(conn, 'fund')
     if name == 'q':
         return
     amt = v.transfer_amt(conn, 'fund')
@@ -163,28 +163,21 @@ def fund(conn):
 
 def env_trans(conn):
     clear()
-    fromName = input('Which envelope do you want to\
-transfer from (* for list): ')
-    if fromName == '*':
-        ids, names, amts = print_envs(conn)
-        while True:
-            i = input('Select a envelope by number ("q" to quit): ')
-            if i == 'q':
-                return
-            elif int(i) in ids:
-                fromName = names[int(i)-1]
-                break
-    toName = input('Which envelope do you want to transfer to (* for list): ')
-    if toName == '*':
-        ids, names, amts = print_envs(conn)
-        while True:
-            i = input('Select a envelope by number ("q" to quit): ')
-            if i == 'q':
-                return
-            elif int(i) in ids:
-                toName = names[int(i)-1]
-                break
-    amt = int(input('How much do you want to transfer: '))
+    fromName = v.select_envelope(conn, 'transferFrom')
+    if fromName == 'q':
+        return
+    while True:
+        toName = v.select_envelope(conn, 'transferTo')
+        if toName == 'q':
+            return
+        elif toName == fromName:
+            print("You cant transfer in/out of the same envelope.")
+            continue
+        else:
+            break
+    amt = v.transfer_amt(conn, 'transfer', fromName)
+    if amt == 'q':
+        return
     SQL.env_trans(conn, fromName, toName, amt)
     conn.commit()
 

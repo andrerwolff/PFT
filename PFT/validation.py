@@ -156,34 +156,18 @@ def new_acct_amt():
             print("You didnt enter amount, please try again.")
 
 
-# Checked 1/2
-def select_enelope(conn, mode):
-    if mode == 'fund':
+# Checked
+def select_envelope(conn, mode):
         while True:
             ids, names, amts = f.print_envs(conn)
-            i = input("Envelope To Fund ('q' to quit): ")
-            if i is not '' and not None:
-                try:
-                    i = int(i)
-                except ValueError:
-                    if i == 'q':
-                        return i
-                    else:
-                        print("Select envelope by number.")
-                        continue
-                else:
-                    if int(i) in ids:
-                        env = names[int(i)-1]
-                        return env
-                    else:
-                        print("Select envelope by number.")
-                        continue
+            if mode == 'fund':
+                i = input("Envelope To Fund ('q' to quit): ")
+            if mode == 'transferFrom':
+                i = input("From Envelope ('q' to quit): ")
+            elif mode == 'transferTo':
+                i = input("To Envelope ('q' to quit): ")
             else:
-                print("You didnt enter anything, please try again.")
-    if mode == 'transferFrom':
-        while True:
-            ids, names, amts = f.print_envs(conn)
-            i = input("From Envelope ('q' to quit): ")
+                print('error in input validation')
             if i is not '' and not None:
                 try:
                     i = int(i)
@@ -205,30 +189,37 @@ def select_enelope(conn, mode):
 
 
 # Checked
-def transfer_amt(conn, mode):
+def transfer_amt(conn, mode, env=None):
     if mode == 'fund':
-        pool = SQL.create_env_object(conn, 'Income Pool')
-        limit = pool.amt
-        while True:
+        envFrom = SQL.create_env_object(conn, 'Income Pool')
+        limit = envFrom.amt
+    elif mode == 'transfer':
+        envFrom = SQL.create_env_object(conn, env)
+        limit = envFrom.amt
+    else:
+        print('error in input validation')
+    while True:
+        if mode == 'fund':
             amt = input('Fund Amount: ')
-            if amt is not '' and not None:
-                try:
-                    amt = float(amt)
-                except ValueError:
-                    if amt == 'q':
-                        return amt
-                    else:
-                        print("Please enter a number.")
-                        continue
+        elif mode == 'transfer':
+            amt = input('Transfer Amount: ')
+        if amt is not '' and not None:
+            try:
+                amt = float(amt)
+            except ValueError:
+                if amt == 'q':
+                    return amt
                 else:
-                    if amt < 0:
-                        print('You cannot fund a negative amount.')
-                        continue
-                    elif amt > limit:
-                        print("You only have ${} avaliable"
-                              " for funding.".format(limit))
-                        continue
-                    else:
-                        return amt
+                    print("Please enter a number.")
+                    continue
             else:
-                print("You didnt enter amount, please try again.")
+                if amt < 0:
+                    print('You cannot enter a negative amount.')
+                    continue
+                elif amt > limit:
+                    print("You only have ${} avaliable.".format(limit))
+                    continue
+                else:
+                    return amt
+        else:
+            print("You didnt enter amount, please try again.")
