@@ -108,7 +108,7 @@ def new_group_i(conn):
 
 def print_options():
     """Print list of available options from option dictionary."""
-    print('Choose and action from the list.')
+    print('Choose an action from the list.')
     for i in range(len(d.OPTIONS_P)):
         print(':: {}'.format(d.OPTIONS_P[i]))
 

@@ -21,15 +21,15 @@ def create_connection(database):
 def check_empty_db(conn):
     """Check if connected database is empty (no tables) and return bool."""
     cur = conn.cursor()
-    cur.execute('SELECT * FROM sqlite_master')
+    cur.execute('SELECT * FROM accounts')
 
     num = cur.fetchall()
 
     if not num:
-        print('Database is Empty. Preparing Database...')
+        print('Welcome to PFT. You haven\'t opened any accounts...')
         return True
     else:
-        print('Welsome back, setup already complete!')
+        print('Welcome back, setup already complete!')
         return False
 
 
