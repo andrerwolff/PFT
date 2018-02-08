@@ -4,7 +4,6 @@
 from PFT import classes as c
 from PFT import dict as d
 from PFT import SQLite as SQL
-from PFT import validation as v
 import os
 
 
@@ -61,19 +60,22 @@ def env_init(conn):
 
 
 def new_acct_i(conn):
-    """Creates a new entry in accounts table, uses user input."""
+    """Creates a new entry in accounts table, uses user input.
+
+        TODO:   -input validation
+                    -type   :not blank
+                            :savings or checking others?
+                            :cast as lowercase for consistency
+                    -name   :not blank
+                    -amt    :not blank
+                            :number
+    """
     # Determine type of account from input, cast as lowercase.
-    type = v.new_acct_type()
-    if type == 'q':
-        return
+    type = input('Account Type: ').lower()
     # Determine account name from input.
-    name = v.new_acct_name()
-    if name == 'q':
-        return
+    name = input('Account Name: ')
     # Determine opening balance in account from input, cast as float.
-    amt = v.new_acct_amt()
-    if amt == 'q':
-        return
+    amt = float(input('Account Amount: '))
     # Create account object using input information.
     acct = c.account(type, name, amt)
     # Use object to create entry in accounts table.
@@ -84,34 +86,37 @@ def new_acct_i(conn):
 
 
 def new_env_i(conn):
-    """Creates a new entry in envelopes table, uses user input."""
+    """Creates a new entry in envelopes table, uses user input.
+
+        TODO:   -input validation
+                    -name   :not blank
+                    -group  :not blank
+                            :in list of groups
+                -make new group if name not in group list
+    """
     # Determine name of envelope from input.
-    name = v.new_env_name()
-    if name == 'q':
-        return
+    name = input('Envelope Name: ')
     # Determine group of envelope from input, input * for list of groups.
-    group = v.new_env_grp_lst(conn)
-    if group == 'q':
-        return
+    group = input('Envelope Group (* for list): ')
+    if group == '*':
+        # Print envelop groups and return the info lists if needed.
+        ids, names = print_groups(conn)
+        while True:
+            # Select group by listed number.
+            i = input('Select a group by number ("q" to quit): ')
+            if i == 'q':
+                # If q input cancel envelope creation.
+                return
+            # If selection is in the id's of the groups, set name of group.
+            elif int(i) in ids:
+                group = names[int(i)-1]
+                break
     # Create envelope object from input information.
     env = c.envelope(group, name)
     # Use object to create entry in envelopes table.
     SQL.create_env(conn, env)
     print(name + ' envelope created in ' + group + ' group.')
     # Update database.
-    conn.commit()
-
-
-def new_group_i(conn):
-    """Creates a new group entry in groups table, uses user input."""
-    name = v.new_env_grp_usr(conn)
-    if name == 'q':
-        return name
-    ids, names = SQL.list_groups(conn)
-    i = len(ids)
-    SQL.create_grp(conn, i+1, name)
-    print(name + ' group created.')
-    return name
     conn.commit()
 
 
@@ -160,33 +165,45 @@ def print_groups(conn):
 
 def fund(conn):
     clear()
-    name = v.select_envelope(conn, 'fund')
-    if name == 'q':
-        return
-    amt = v.transfer_amt(conn, 'fund')
-    if amt == 'q':
-        return
+    name = input('Which envelope do you want to fund (* for list): ')
+    if name == '*':
+        ids, names, amts = print_envs(conn)
+        while True:
+            i = input('Select a envelope by number ("q" to quit): ')
+            if i == 'q':
+                return
+            elif int(i) in ids:
+                name = names[int(i)-1]
+                break
+    amt = int(input('How much do you want to fund: '))
     SQL.env_trans(conn, 'Income Pool', name, amt)
     conn.commit()
 
 
 def env_trans(conn):
     clear()
-    fromName = v.select_envelope(conn, 'transferFrom')
-    if fromName == 'q':
-        return
-    while True:
-        toName = v.select_envelope(conn, 'transferTo')
-        if toName == 'q':
-            return
-        elif toName == fromName:
-            print("You cant transfer in/out of the same envelope.")
-            continue
-        else:
-            break
-    amt = v.transfer_amt(conn, 'transfer', fromName)
-    if amt == 'q':
-        return
+    fromName = input('Which envelope do you want to\
+transfer from (* for list): ')
+    if fromName == '*':
+        ids, names, amts = print_envs(conn)
+        while True:
+            i = input('Select a envelope by number ("q" to quit): ')
+            if i == 'q':
+                return
+            elif int(i) in ids:
+                fromName = names[int(i)-1]
+                break
+    toName = input('Which envelope do you want to transfer to (* for list): ')
+    if toName == '*':
+        ids, names, amts = print_envs(conn)
+        while True:
+            i = input('Select a envelope by number ("q" to quit): ')
+            if i == 'q':
+                return
+            elif int(i) in ids:
+                toName = names[int(i)-1]
+                break
+    amt = int(input('How much do you want to transfer: '))
     SQL.env_trans(conn, fromName, toName, amt)
     conn.commit()
 
@@ -220,6 +237,7 @@ def withdraw(conn):
             elif int(i) in ids:
                 acct_name = names[int(i)-1]
                 break
+
     env_name = input('Withdraw from which envelope(* for list): ')
     if env_name == '*':
         ids, names, amts = print_envs(conn)
@@ -230,10 +248,11 @@ def withdraw(conn):
             elif int(i) in ids:
                 env_name = names[int(i)-1]
                 break
+
     amt = int(input('How much is the withdrawal: '))
     SQL.acct_with(conn, acct_name, env_name, amt)
     conn.commit()
 
 
 def quit(conn):
-    conn.commit()
+    pass
