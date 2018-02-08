@@ -9,13 +9,13 @@ sql_cmd = {'accountsTable': '''CREATE TABLE IF NOT EXISTS accounts (
                                     acct_amt  DECIMAL NOT NULL
                                 );''',
            'groupsTable': '''CREATE TABLE IF NOT EXISTS groups (
-                                    group_id INTEGER NOT NULL UNIQUE,
-                                    group_name STRING PRIMARY KEY NOT NULL
+                                    group_id INTEGER PRIMARY KEY NOT NULL,
+                                    group_name STRING UNIQUE NOT NULL
                                 );''',
            'envelopesTable': '''CREATE TABLE IF NOT EXISTS envelopes (
                                     env_id INTEGER PRIMARY KEY NOT NULL,
                                     env_group STRING NOT NULL
-                                    REFERENCES groups (group_name),
+                                    REFERENCES groups (group_id),
                                     env_name STRING NOT NULL UNIQUE,
                                     env_amt DECIMAL NOT NULL
                                 );''',
@@ -36,14 +36,14 @@ sql_cmd = {'accountsTable': '''CREATE TABLE IF NOT EXISTS accounts (
                                     payee_id INTEGER
                                     REFERENCES payees (payee_id)
                                 );''',
-            'payeesTable' : ''' CREATE TABLE IF NOT EXISTS payees (
+           'payeesTable': '''CREATE TABLE IF NOT EXISTS payees (
                                 payee_id INTEGER PRIMARY KEY NOT NULL,
                                 payee_name STRING NOT NULL UNIQUE
                                 );''',
 
            'createAcct': '''INSERT INTO  accounts (acct_type,acct_name,acct_amt)
                                             VALUES(?,?,?) ''',
-           'selectAcctName': '''SELECT acct_type, acct_name, acct_amt
+           'selectAcctName': '''SELECT acct_id,acct_type,acct_name,acct_amt
                                 FROM accounts WHERE acct_name = ''',
            'listAccts': '''SELECT acct_id,acct_name,acct_amt FROM accounts''',
            'updateAcct': '''UPDATE accounts
@@ -54,7 +54,7 @@ sql_cmd = {'accountsTable': '''CREATE TABLE IF NOT EXISTS accounts (
            'listGroups': '''SELECT group_id,group_name FROM groups''',
            'createEnv': '''INSERT INTO  envelopes (env_group,env_name,env_amt)
                                             VALUES(?,?,?) ''',
-           'selectEnvName': '''SELECT env_group, env_name, env_amt
+           'selectEnvName': '''SELECT env_id,env_group,env_name,env_amt
                                 FROM envelopes WHERE env_name = ''',
            'listEnvs': '''SELECT env_id,env_name,env_amt FROM envelopes''',
            'updateEnv': ''' UPDATE envelopes
