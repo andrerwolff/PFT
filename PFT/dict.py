@@ -6,7 +6,7 @@ sql_cmd = {'accountsTable': '''CREATE TABLE IF NOT EXISTS accounts (
                                     acct_id   INTEGER PRIMARY KEY NOT NULL,
                                     acct_type STRING,
                                     acct_name STRING  NOT NULL UNIQUE,
-                                    acct_amt  DECIMAL NOT NULL
+                                    acct_amt  INTEGER NOT NULL
                                 );''',
            'groupsTable': '''CREATE TABLE IF NOT EXISTS groups (
                                     group_id INTEGER PRIMARY KEY NOT NULL,
@@ -17,14 +17,14 @@ sql_cmd = {'accountsTable': '''CREATE TABLE IF NOT EXISTS accounts (
                                     env_group STRING NOT NULL
                                     REFERENCES groups (group_id),
                                     env_name STRING NOT NULL UNIQUE,
-                                    env_amt DECIMAL NOT NULL
+                                    env_amt INTEGER NOT NULL
                                 );''',
            'transactionsTable': '''CREATE TABLE IF NOT EXISTS transactions (
                                     trans_id INTEGER PRIMARY KEY NOT NULL,
                                     trans_date DATE NOT NULL,
                                     trans_type STRING,
                                     trans_memo STRING NOT NULL,
-                                    trans_amt DECIMAL NOT NULL,
+                                    trans_amt INTEGER NOT NULL,
                                     trans_acct_to_id   INTEGER
                                     REFERENCES accounts (acct_id),
                                     trans_acct_from_id INTEGER
@@ -72,10 +72,11 @@ ENV_GROUPS = {1: '~', 2: 'Bills', 3: 'Daily', 4: 'Monthly', 5: 'Periodic',
               6: 'Giving', 7: 'Goals', 8: 'Other'}
 
 OPTIONS = {'f': f.fund, 'a': f.new_acct_i, 'e': f.new_env_i, 'd': f.deposit,
-           'w': f.withdraw, 't': f.env_trans, 'la': f.print_accts,
+           'w': f.withdraw, 't': f.transfer, 'la': f.print_accts,
            'le': f.print_envs, 'q': f.quit}
 
 OPTIONS_P = ('a - New Account', 'e - New Envelope', 'd - Make Deposit',
              'w - Make Withdrawal', 'f - Fund Envelope',
-             't - Transfer Between Envelopes', 'la - Display Accounts',
-             'le - Display Envelopes', 'q - Quit PFT')
+             't - Transfer Between Envelopes',
+             'la - Display Accounts(scroll up)',
+             'le - Display Envelopes(scroll up)', 'q - Quit PFT')
