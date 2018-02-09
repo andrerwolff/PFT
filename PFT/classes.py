@@ -17,16 +17,16 @@ class account(container):
         self.type = type + "_" + self.type
         self.id = id
 
-    def deposit(self, envIn, amt, memo=''):
-        self.amt += amt
-        envIn.amt += amt
-        t = transaction(self, envIn, amt, 'deposit', memo)
-        return t
-
-    def withdraw(self, envOut, amt, memo=''):
-        self.amt -= amt
-        envOut.amt -= amt
-        t = transaction(self, envOut, amt, 'withdrawal', memo)
+    def transaction(self, env, amt, mode, memo=''):
+        if mode == 'deposit':
+            self.amt += amt
+            env.amt += amt
+        elif mode == 'withdraw':
+            self.amt -= amt
+            env.amt -= amt
+        else:
+            print('error in acct.transaction')
+        t = transaction(self, env, amt, mode, memo)
         return t
 
 
