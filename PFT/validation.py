@@ -63,8 +63,9 @@ def new_env_grp_lst(conn):
                     print('Enter a number from the list of grops.')
                     continue
             else:
-                if int(i) in ids:
-                    group = names[int(i)-1]
+                if i in ids:
+                    id = ids.index(i)
+                    group = names[id]
                     return group
                 else:
                     print('That does not match a group, please try again.')
@@ -116,7 +117,7 @@ def new_acct_amt():
         amt = input('New Account Balance: ')
         if amt is not '' and not None:
             try:
-                amt = float(amt)
+                amt = int(float(amt)*100)
             except ValueError:
                 if amt == 'q':
                     return amt
@@ -137,7 +138,7 @@ def new_acct_amt():
                         else:
                             continue
                         break
-                elif amt > 20000:
+                elif amt > 2000000:
                     while True:
                         ans = input('Confirm Balance > $20,000 (y/n): ')
                         if ans is not '' and not None:
@@ -158,34 +159,63 @@ def new_acct_amt():
 
 # Checked
 def select_envelope(conn, mode):
-        while True:
-            ids, names, amts = f.print_envs(conn)
-            if mode == 'fund':
-                i = input("Envelope To Fund ('q' to quit): ")
-            elif mode == 'transferFrom':
-                i = input("From Envelope ('q' to quit): ")
-            elif mode == 'transferTo':
-                i = input("To Envelope ('q' to quit): ")
-            else:
-                print('error in input validation', mode)
-            if i is not '' and not None:
-                try:
-                    i = int(i)
-                except ValueError:
-                    if i == 'q':
-                        return i
-                    else:
-                        print("Select envelope by number.")
-                        continue
+    while True:
+        ids, names, amts = f.print_envs(conn)
+        if mode == 'fund':
+            i = input("Envelope To Fund ('q' to quit): ")
+        elif mode == 'transferFrom' or mode == 'withdraw':
+            i = input("From Envelope ('q' to quit): ")
+        elif mode == 'transfer' or mode == 'deposit':
+            i = input("To Envelope ('q' to quit): ")
+        else:
+            print('error in input validation', mode)
+        if i is not '' and not None:
+            try:
+                i = int(i)
+            except ValueError:
+                if i == 'q':
+                    return i
                 else:
-                    if int(i) in ids:
-                        env = names[int(i)-1]
-                        return env
-                    else:
-                        print("Select envelope by number.")
-                        continue
+                    print("Select envelope by number.")
+                    continue
             else:
-                print("You didnt enter anything, please try again.")
+                if i in ids:
+                    id = ids.index(i)
+                    env = names[id]
+                    return env
+                else:
+                    print("Select envelope by number.")
+                    continue
+        else:
+            print("You didnt enter anything, please try again.")
+
+
+def select_account(conn, mode):
+    while True:
+        ids, names, amts = f.print_accts(conn)
+        if mode == 'deposit' or mode == 'withdraw':
+            i = input("Select Account ('q' to quit): ")
+        else:
+            print('error in input validation', mode)
+        if i is not '' and not None:
+            try:
+                i = int(i)
+            except ValueError:
+                if i == 'q':
+                    return i
+                else:
+                    print("Select account by number.")
+                    continue
+            else:
+                if i in ids:
+                    id = ids.index(i)
+                    acct = names[id]
+                    return acct
+                else:
+                    print("Select account by number.")
+                    continue
+        else:
+            print("You didn't enter anything, please try again.")
 
 
 # Checked
@@ -193,9 +223,11 @@ def transfer_amt(conn, mode, env=None):
     if mode == 'fund':
         envFrom = SQL.create_env_object(conn, 'Income Pool')
         limit = envFrom.amt
-    elif mode == 'transfer':
+    elif mode == 'transfer' or mode == 'withdraw':
         envFrom = SQL.create_env_object(conn, env)
         limit = envFrom.amt
+    elif mode == 'deposit':
+        pass
     else:
         print('error in input validation', mode)
     while True:
@@ -203,9 +235,15 @@ def transfer_amt(conn, mode, env=None):
             amt = input('Fund Amount: ')
         elif mode == 'transfer':
             amt = input('Transfer Amount: ')
+        elif mode == 'withdraw':
+            amt = input("Withdrawal Amount: ")
+        elif mode == 'deposit':
+            amt = input("Deposit Amount: ")
+        else:
+            print('error in input validation', mode)
         if amt is not '' and not None:
             try:
-                amt = float(amt)
+                amt = int(float(amt)*100)
             except ValueError:
                 if amt == 'q':
                     return amt
@@ -216,9 +254,24 @@ def transfer_amt(conn, mode, env=None):
                 if amt < 0:
                     print('You cannot enter a negative amount.')
                     continue
-                elif amt > limit:
-                    print("You only have ${} avaliable.".format(limit))
-                    continue
+                if mode == 'fund' or mode == 'transfer' or mode == 'withdraw':
+                    if amt > limit:
+                        print("You only have ${} avaliable."
+                              .format(format(limit/100, '.2f')))
+                        while True:
+                            ans = input('Confirm Negative Balance (y/n): ')
+                            if ans is not '' and not None:
+                                ans = ans.lower()
+                                if ans == 'y':
+                                    return amt
+                                elif ans == 'n':
+                                    break
+                                continue
+                            else:
+                                continue
+                            break
+                    else:
+                        return amt
                 else:
                     return amt
         else:

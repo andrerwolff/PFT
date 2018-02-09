@@ -127,9 +127,10 @@ def print_accts(conn):
     # Collect info on existing accounts.
     ids, names, amts = SQL.list_accts(conn)
     for i in range(len(ids)):
-        print(':: {} - {}: {}'.format(ids[i], names[i], amts[i]))
+        print(':: {} - {}: ${}'.format(ids[i], names[i],
+                                       format(amts[i]/100, '.2f')))
     # Needed to avoid auto clear when displaying accounts stand alone.
-    input('Enter to continue...')
+    # input('Enter to continue...')
     # Return lists if needed.
     return ids, names, amts
 
@@ -139,9 +140,10 @@ def print_envs(conn):
     # Collect info on existing envelopes.
     ids, names, amts = SQL.list_envs(conn)
     for i in range(len(ids)):
-        print(':: {} - {}: {}'.format(ids[i], names[i], amts[i]))
+        print(':: {} - {}: ${}'.format(ids[i], names[i],
+                                       format(amts[i]/100, '.2f')))
     # Needed to avoid auto clear when displaying envelopes stand alone.
-    input('Enter to continue...')
+    # input('Enter to continue...')
     # Return lists if needed.
     return ids, names, amts
 
@@ -158,25 +160,19 @@ def print_groups(conn):
     return ids, names
 
 
-def fund(conn):
+def env_trans(conn, mode):
     clear()
-    name = v.select_envelope(conn, 'fund')
-    if name == 'q':
-        return
-    amt = v.transfer_amt(conn, 'fund')
-    if amt == 'q':
-        return
-    SQL.env_trans(conn, 'Income Pool', name, amt)
-    conn.commit()
-
-
-def env_trans(conn):
-    clear()
-    fromName = v.select_envelope(conn, 'transferFrom')
-    if fromName == 'q':
+    if mode == 'fund':
+        fromName = 'Income Pool'
+    elif mode == 'transfer':
+        fromName = v.select_envelope(conn, 'transferFrom')
+        if fromName == 'q':
+            return
+    else:
+        print('error in f.env_trans')
         return
     while True:
-        toName = v.select_envelope(conn, 'transferTo')
+        toName = v.select_envelope(conn, mode)
         if toName == 'q':
             return
         elif toName == fromName:
@@ -184,54 +180,44 @@ def env_trans(conn):
             continue
         else:
             break
-    amt = v.transfer_amt(conn, 'transfer', fromName)
+    amt = v.transfer_amt(conn, mode, fromName)
     if amt == 'q':
         return
-    SQL.env_trans(conn, fromName, toName, amt)
+    SQL.transfer(conn, fromName, toName, amt)
+    conn.commit()
+
+
+def transaction(conn, mode):
+    clear()
+    acct_name = v.select_account(conn, mode)
+    if acct_name == 'q':
+        return
+    env_name = v.select_envelope(conn, mode)
+    if env_name == 'q':
+        return
+    amt = v.transfer_amt(conn, mode)
+    if amt == 'q':
+        return
+    SQL.transact(conn, acct_name, env_name, amt, mode)
+
+
+def transfer(conn):
+    env_trans(conn, 'transfer')
+    conn.commit()
+
+
+def fund(conn):
+    env_trans(conn, 'fund')
     conn.commit()
 
 
 def deposit(conn):
-    clear()
-    name = input('Deposit into which account(* for list): ')
-    if name == '*':
-        ids, names, amts = print_accts(conn)
-        while True:
-            i = input('Select a acount by number ("q" to quit): ')
-            if i == 'q':
-                return
-            elif int(i) in ids:
-                name = names[int(i)-1]
-                break
-    amt = int(input('How much is the deposit: '))
-    SQL.acct_dep(conn, name, amt)
+    transaction(conn, 'deposit')
     conn.commit()
 
 
 def withdraw(conn):
-    clear()
-    acct_name = input('Withdraw from which account(* for list): ')
-    if acct_name == '*':
-        ids, names, amts = print_accts(conn)
-        while True:
-            i = input('Select a acount by number ("q" to quit): ')
-            if i == 'q':
-                return
-            elif int(i) in ids:
-                acct_name = names[int(i)-1]
-                break
-    env_name = input('Withdraw from which envelope(* for list): ')
-    if env_name == '*':
-        ids, names, amts = print_envs(conn)
-        while True:
-            i = input('Select an envelope by number ("q" to quit): ')
-            if i == 'q':
-                return
-            elif int(i) in ids:
-                env_name = names[int(i)-1]
-                break
-    amt = int(input('How much is the withdrawal: '))
-    SQL.acct_with(conn, acct_name, env_name, amt)
+    transaction(conn, 'withdraw')
     conn.commit()
 
 
