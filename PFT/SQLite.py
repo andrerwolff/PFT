@@ -27,10 +27,9 @@ def check_empty_db(conn):
 
     if not num:
         print('Welcome to PFT. You haven\'t opened any accounts...')
-        return True
+        print("*Hint - press 'a'  and follow prompts to open a new account.")
     else:
         print('Welcome back, setup already complete!')
-        return False
 
 
 def create_table(conn, create_table_sql):
@@ -65,28 +64,6 @@ def create_acct_object(conn, name):
     return acct
 
 
-def acct_dep(conn, name, amt):
-    """Create a deposit transaction into an account."""
-    acct = create_acct_object(conn, name)
-    pool = create_env_object(conn, 'Income Pool')
-    t = acct.deposit(pool, amt)
-    cur = conn.cursor()
-    create_deposit(conn, t)
-    cur.execute(d.sql_cmd['updateEnv'], (pool.amt, pool.name))
-    cur.execute(d.sql_cmd['updateAcct'], (acct.amt, acct.name))
-
-
-def acct_with(conn, acct_name, env_name, amt):
-    """Create a withdrawal transaction from an account."""
-    acct = create_acct_object(conn, acct_name)
-    env = create_env_object(conn, env_name)
-    t = acct.withdraw(env, amt)
-    cur = conn.cursor()
-    create_withdrawal(conn, t)
-    cur.execute(d.sql_cmd['updateEnv'], (env.amt, env.name))
-    cur.execute(d.sql_cmd['updateAcct'], (acct.amt, acct.name))
-
-
 def list_accts(conn):
     """Gather info from accounts table and return lists."""
     cur = conn.cursor()
@@ -98,7 +75,7 @@ def list_accts(conn):
     for e in lst:
         acct_ids.append(int(e[0]))
         acct_names.append(str(e[1]))
-        acct_amts.append(float(e[2]))
+        acct_amts.append(int(e[2]))
     return acct_ids, acct_names, acct_amts
 
 
@@ -158,49 +135,56 @@ def list_envs(conn):
     for e in lst:
         env_ids.append(int(e[0]))
         env_names.append(str(e[1]))
-        env_amts.append(float(e[2]))
+        env_amts.append(int(e[2]))
     return env_ids, env_names, env_amts
 
 
-def create_transfer(conn, t):
+def create_transaction(conn, t, mode):
     """Create new transaction entry for transfers using transaction object."""
-    try:
-        info = (t.date, t.type, t.memo, t.amt,
-                '', '', t.tB.id, t.tA.id)
-        cur = conn.cursor()
-        cur.execute(d.sql_cmd['createTrans'], info)
-    except Error as e:
-        print(e, 'trans')
-
-
-def create_deposit(conn, t):
+    if mode == 'transfer':
+        try:
+            info = (t.date, t.type, t.memo, t.amt,
+                    '', '', t.tB.id, t.tA.id)
+            cur = conn.cursor()
+            cur.execute(d.sql_cmd['createTrans'], info)
+        except Error as e:
+            print(e, 'trans')
     """Create new transaction entry for deposit using transaction object."""
-    try:
-        info = (t.date, t.type, t.memo, t.amt,
-                t.tA.id, '', t.tB.id, '')
-        cur = conn.cursor()
-        cur.execute(d.sql_cmd['createTrans'], info)
-    except Error as e:
-        print(e, 'trans')
-
-
-def create_withdrawal(conn, t):
+    if mode == 'deposit':
+        try:
+            info = (t.date, t.type, t.memo, t.amt,
+                    t.tA.id, '', t.tB.id, '')
+            cur = conn.cursor()
+            cur.execute(d.sql_cmd['createTrans'], info)
+        except Error as e:
+            print(e, 'dep')
     """Create new transaction entry for withdrawal using transacion object."""
-    try:
-        info = (t.date, t.type, t.memo, t.amt,
-                '', t.tA.id, '', t.tB.id)
-        cur = conn.cursor()
-        cur.execute(d.sql_cmd['createTrans'], info)
-    except Error as e:
-        print(e, 'trans')
+    if mode == 'withdraw':
+        try:
+            info = (t.date, t.type, t.memo, t.amt,
+                    '', t.tA.id, '', t.tB.id)
+            cur = conn.cursor()
+            cur.execute(d.sql_cmd['createTrans'], info)
+        except Error as e:
+            print(e, 'with')
 
 
-def env_trans(conn, fromName, toName, amt):
+def transact(conn, acct_name, env_name, amt, mode):
+    acct = create_acct_object(conn, acct_name)
+    env = create_env_object(conn, env_name)
+    t = acct.transaction(env, amt, mode)
+    cur = conn.cursor()
+    create_transaction(conn, t, mode)
+    cur.execute(d.sql_cmd['updateAcct'], (acct.amt, acct.name))
+    cur.execute(d.sql_cmd['updateEnv'], (env.amt, env.name))
+
+
+def transfer(conn, fromName, toName, amt):
     """Initiate a envelope transfer."""
     fromEnv = create_env_object(conn, fromName)
     toEnv = create_env_object(conn, toName)
     t = fromEnv.envTransfer(toEnv, amt)
     cur = conn.cursor()
-    create_transfer(conn, t)
+    create_transaction(conn, t, 'transfer')
     cur.execute(d.sql_cmd['updateEnv'], (fromEnv.amt, fromEnv.name))
     cur.execute(d.sql_cmd['updateEnv'], (toEnv.amt, toEnv.name))
