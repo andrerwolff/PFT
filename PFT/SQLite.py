@@ -79,12 +79,11 @@ def list_accts(conn):
     return acct_ids, acct_names, acct_amts
 
 
-def create_grp(conn, id, name):
+def create_grp(conn, name):
     """Create a new group in groups table."""
     cur = conn.cursor()
     try:
-        info = (id, name)
-        cur.execute(d.sql_cmd['createGrp'], info)
+        cur.execute(d.sql_cmd['createGrp'], (name,))
     except Error as e:
         print(e)
 
@@ -124,6 +123,15 @@ def create_env_object(conn, name):
     return env
 
 
+def create_payee_object(conn, name):
+    sql = "{}'{}'".format(d.sql_cmd['selectPayeeName'], name)
+    cur = conn.cursor()
+    cur.execute(sql)
+    i, n, t = cur.fetchone()
+    p = c.payee(n, t, id=i)
+    return p
+
+
 def list_envs(conn):
     """Gather info from envelopes table and return lists"""
     cur = conn.cursor()
@@ -137,6 +145,36 @@ def list_envs(conn):
         env_names.append(str(e[1]))
         env_amts.append(int(e[2]))
     return env_ids, env_names, env_amts
+
+
+def list_payees(conn, mode):
+    cur = conn.cursor()
+    if mode == 'deposit':
+        cur.execute(d.sql_cmd['listPayees'] + '1')
+    elif mode == 'withdraw':
+        cur.execute(d.sql_cmd['listPayees'] + '2')
+    else:
+        print("error in list payees", mode)
+    lst = cur.fetchall()
+    payee_ids = []
+    payee_names = []
+    for p in lst:
+        payee_ids.append(int(p[0]))
+        payee_names.append(p[1])
+    return payee_ids, payee_names
+
+
+def create_payee(conn, name, mode):
+    if mode == 'deposit':
+        type = 1
+    elif mode == 'withdraw':
+        type = 2
+    try:
+        info = (name, type)
+        cur = conn.cursor()
+        cur.execute(d.sql_cmd['createPayee'], info)
+    except Error as e:
+        print(e, 'payee')
 
 
 def create_transaction(conn, t, mode):
@@ -153,7 +191,7 @@ def create_transaction(conn, t, mode):
     if mode == 'deposit':
         try:
             info = (t.date, t.type, t.memo, t.amt,
-                    t.tA.id, '', t.tB.id, '')
+                    t.tA.id, '', t.tB.id, '', t.payee.id)
             cur = conn.cursor()
             cur.execute(d.sql_cmd['createTrans'], info)
         except Error as e:
@@ -162,17 +200,18 @@ def create_transaction(conn, t, mode):
     if mode == 'withdraw':
         try:
             info = (t.date, t.type, t.memo, t.amt,
-                    '', t.tA.id, '', t.tB.id)
+                    '', t.tA.id, '', t.tB.id, t.payee.id)
             cur = conn.cursor()
             cur.execute(d.sql_cmd['createTrans'], info)
         except Error as e:
             print(e, 'with')
 
 
-def transact(conn, acct_name, env_name, amt, mode):
+def transact(conn, acct_name, env_name, amt, mode, payee_name):
     acct = create_acct_object(conn, acct_name)
     env = create_env_object(conn, env_name)
-    t = acct.transaction(env, amt, mode)
+    p = create_payee_object(conn, payee_name)
+    t = acct.transaction(env, amt, mode, payee=p)
     cur = conn.cursor()
     create_transaction(conn, t, mode)
     cur.execute(d.sql_cmd['updateAcct'], (acct.amt, acct.name))

@@ -91,6 +91,64 @@ def new_env_grp_usr(conn):
             print("You didn't enter a name, please try again. ('q' to cancel)")
 
 
+def select_payee_lst(conn, mode):
+    ids, names = f.print_payees(conn, mode)
+    while True:
+        if mode == 'deposit':
+            i = input("Pick Payer From List (* To create new payer): ")
+        elif mode == 'withdraw':
+            i = input("Pick Payee From List (* To create new payee): ")
+        else:
+            print("Error in validation", mode)
+        if i is not '' and not None:
+            try:
+                i = int(i)
+            except ValueError:
+                if i == '*':
+                    payee = f.new_payee_i(conn, mode)
+                    if payee is not '' and not None:
+                            return payee
+                    else:
+                        continue
+                elif i == 'q':
+                    return i
+                else:
+                    print('Enter a number from the list.')
+                    continue
+            else:
+                if i in ids:
+                    id = ids.index(i)
+                    payee = names[id]
+                    return payee
+                else:
+                    print('That does not match, please try again.')
+                    continue
+        else:
+            print("You didn't enter anything, please try again."
+                  " ('q' to cancel)")
+
+
+# Checked
+def new_payee_usr(conn, mode):
+    while True:
+        if mode == 'deposit':
+            name = input("New Payer Name (* back to list): ")
+        elif mode == 'withdraw':
+            name = input("New Payee Name (* back to list): ")
+        else:
+            print("Error in validation", mode)
+        if name is not '' and not None:
+            if len(name) > 20:
+                print("That name is too long, please use another name.")
+            elif name == '*':
+                name = new_payee_lst(conn, mode)
+                return name
+            else:
+                return name
+        else:
+            print("You didn't enter a name, please try again. ('q' to cancel)")
+
+
 # Checked
 def new_acct_type():
     while True:
@@ -226,6 +284,7 @@ def transfer_amt(conn, mode, env=None):
     elif mode == 'transfer' or mode == 'withdraw':
         envFrom = SQL.create_env_object(conn, env)
         limit = envFrom.amt
+        print(limit)
     elif mode == 'deposit':
         pass
     else:
@@ -255,6 +314,7 @@ def transfer_amt(conn, mode, env=None):
                     print('You cannot enter a negative amount.')
                     continue
                 if mode == 'fund' or mode == 'transfer' or mode == 'withdraw':
+                    print(amt, limit)
                     if amt > limit:
                         print("You only have ${} avaliable."
                               .format(format(limit/100, '.2f')))

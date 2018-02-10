@@ -17,7 +17,7 @@ class account(container):
         self.type = type + "_" + self.type
         self.id = id
 
-    def transaction(self, env, amt, mode, memo=''):
+    def transaction(self, env, amt, mode, payee, memo=''):
         if mode == 'deposit':
             self.amt += amt
             env.amt += amt
@@ -26,7 +26,7 @@ class account(container):
             env.amt -= amt
         else:
             print('error in acct.transaction')
-        t = transaction(self, env, amt, mode, memo)
+        t = transaction(self, env, amt, mode, payee, memo)
         return t
 
 
@@ -44,13 +44,21 @@ class envelope(container):
         return t
 
 
+class payee:
+    def __init__(self, name, type, id=0):
+        self.id = id
+        self.name = name
+        self.type = type
+
+
 class transaction:
-    def __init__(self, a, b, amt, type, memo=''):
+    def __init__(self, a, b, amt, type, payee=None, memo=''):
         # transfer out - deposit acct - withdrawal acct
         self.tA = a
         # transfer in - pool env - withdrawal env
         self.tB = b
         self.amt = amt
         self.type = type
+        self.payee = payee
         self.memo = memo
         self.date = datetime.datetime.today().strftime('%Y-%m-%d')

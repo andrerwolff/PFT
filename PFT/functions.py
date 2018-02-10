@@ -49,7 +49,7 @@ def table_init(conn):
 def env_init(conn):
     """Initialize envelope groups and default envelope."""
     for k in d.ENV_GROUPS:
-        SQL.create_grp(conn, k, d.ENV_GROUPS[k])
+        SQL.create_grp(conn, d.ENV_GROUPS[k])
         print(d.ENV_GROUPS[k], 'group created.')
     # Create income pool envelope object.
     e = c.envelope(d.ENV_GROUPS[1], 'Income Pool')
@@ -107,10 +107,20 @@ def new_group_i(conn):
     name = v.new_env_grp_usr(conn)
     if name == 'q':
         return name
-    ids, names = SQL.list_groups(conn)
-    i = len(ids)
-    SQL.create_grp(conn, i+1, name)
+    SQL.create_grp(conn, name)
     print(name + ' group created.')
+    return name
+    conn.commit()
+
+
+def new_payee_i(conn, mode):
+    """Creates a new payee entry in payees table, uses user input."""
+    name = v.new_payee_usr(conn, mode)
+    if name == 'q':
+        return name
+    ids, names = SQL.list_payees(conn, mode)
+    SQL.create_payee(conn, name, mode)
+    print(name + ' payee created.')
     return name
     conn.commit()
 
@@ -160,6 +170,15 @@ def print_groups(conn):
     return ids, names
 
 
+def print_payees(conn, mode):
+    """Print list of payees or payers"""
+    ids, names = SQL.list_payees(conn, mode)
+    print(ids, names)
+    for i in range(len(ids)):
+        print(":: {} - {}".format(ids[i], names[i]))
+    return ids, names
+
+
 def env_trans(conn, mode):
     clear()
     if mode == 'fund':
@@ -195,10 +214,17 @@ def transaction(conn, mode):
     env_name = v.select_envelope(conn, mode)
     if env_name == 'q':
         return
-    amt = v.transfer_amt(conn, mode)
+    if mode == 'withdraw':
+        amt = v.transfer_amt(conn, mode, env_name)
+    else:
+        amt = v.transfer_amt(conn, mode)
     if amt == 'q':
         return
-    SQL.transact(conn, acct_name, env_name, amt, mode)
+    payee = v.select_payee_lst(conn, mode)
+    if payee == 'q':
+        return
+    print(acct_name, env_name, amt, mode, payee)
+    SQL.transact(conn, acct_name, env_name, amt, mode, payee)
 
 
 def transfer(conn):
