@@ -38,7 +38,8 @@ sql_cmd = {'accountsTable': '''CREATE TABLE IF NOT EXISTS accounts (
                                 );''',
            'payeesTable': '''CREATE TABLE IF NOT EXISTS payees (
                                 payee_id INTEGER PRIMARY KEY NOT NULL,
-                                payee_name STRING NOT NULL UNIQUE
+                                payee_name STRING NOT NULL UNIQUE,
+                                payee_type INTEGER NOT NULL
                                 );''',
 
            'createAcct': '''INSERT INTO  accounts (acct_type,acct_name,acct_amt)
@@ -49,9 +50,15 @@ sql_cmd = {'accountsTable': '''CREATE TABLE IF NOT EXISTS accounts (
            'updateAcct': '''UPDATE accounts
                             set acct_amt = ?
                             WHERE acct_name = ?''',
-           'createGrp': '''INSERT INTO  groups (group_id, group_name)
-                                            VALUES(?,?) ''',
+           'createGrp': '''INSERT INTO  groups (group_name)
+                                            VALUES(?) ''',
            'listGroups': '''SELECT group_id,group_name FROM groups''',
+           'createPayee': '''INSERT INTO payees (payee_name,payee_type)
+                                            VALUES(?,?) ''',
+           'listPayees': '''SELECT payee_id,payee_name
+                            FROM payees WHERE payee_type = ''',
+           'selectPayeeName': '''SELECT payee_id,payee_name,payee_type
+                                 FROM payees WHERE payee_name = ''',
            'createEnv': '''INSERT INTO  envelopes (env_group,env_name,env_amt)
                                             VALUES(?,?,?) ''',
            'selectEnvName': '''SELECT env_id,env_group,env_name,env_amt
@@ -65,8 +72,9 @@ sql_cmd = {'accountsTable': '''CREATE TABLE IF NOT EXISTS accounts (
                                                         trans_acct_to_id,
                                                         trans_acct_from_id,
                                                         trans_env_to_id,
-                                                        trans_env_from_id)
-                                            VALUES(?,?,?,?,?,?,?,?) '''}
+                                                        trans_env_from_id,
+                                                        payee_id)
+                                            VALUES(?,?,?,?,?,?,?,?,?) '''}
 
 ENV_GROUPS = {1: '~', 2: 'Bills', 3: 'Daily', 4: 'Monthly', 5: 'Periodic',
               6: 'Giving', 7: 'Goals', 8: 'Other'}
