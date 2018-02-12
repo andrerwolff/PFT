@@ -52,7 +52,7 @@ def new_env_grp_lst(conn):
                 i = int(i)
             except ValueError:
                 if i == '*':
-                    group = f.new_group_i(conn)
+                    group = f.new_group(conn)
                     if group is not '' and not None:
                             return group
                     else:
@@ -105,7 +105,7 @@ def select_payee_lst(conn, mode):
                 i = int(i)
             except ValueError:
                 if i == '*':
-                    payee = f.new_payee_i(conn, mode)
+                    payee = f.new_payee(conn, mode)
                     if payee is not '' and not None:
                             return payee
                     else:

@@ -79,7 +79,7 @@ sql_cmd = {'accountsTable': '''CREATE TABLE IF NOT EXISTS accounts (
 ENV_GROUPS = {1: '~', 2: 'Bills', 3: 'Daily', 4: 'Monthly', 5: 'Periodic',
               6: 'Giving', 7: 'Goals', 8: 'Other'}
 
-OPTIONS = {'f': f.fund, 'a': f.new_acct_i, 'e': f.new_env_i, 'd': f.deposit,
+OPTIONS = {'f': f.fund, 'a': f.new_acct, 'e': f.new_env, 'd': f.deposit,
            'w': f.withdraw, 't': f.transfer, 'la': f.print_accts,
            'le': f.print_envs, 'q': f.quit}
 

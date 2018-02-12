@@ -207,7 +207,7 @@ def create_transaction(conn, t, mode):
             print(e, 'with')
 
 
-def transact(conn, acct_name, env_name, amt, mode, payee_name):
+def transact(conn, acct_name, env_name, amt, payee_name, mode):
     acct = create_acct_object(conn, acct_name)
     env = create_env_object(conn, env_name)
     p = create_payee_object(conn, payee_name)
