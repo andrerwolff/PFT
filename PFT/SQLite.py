@@ -289,6 +289,8 @@ def transact(conn, acct_name, env_name, amt, payee_name, mode):
     This function creates acct, env, payee and transaction objects.
     Using objects, call create_transaction for table entry.
     Updates accounts and envelopes accordingly.
+
+    Called by f.transaction().
     """
     # Create account object.
     acct = create_acct_object(conn, acct_name)
@@ -312,6 +314,8 @@ def transfer(conn, fromName, toName, amt):
     Initiate a envelope transfer.
 
     See transact() for details, similar process.
+
+    Called by f.transfer()
     """
     fromEnv = create_env_object(conn, fromName)
     toEnv = create_env_object(conn, toName)
