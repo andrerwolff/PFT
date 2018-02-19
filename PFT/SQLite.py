@@ -50,7 +50,7 @@ def create_acct(conn, acct):
     """
     try:
         # Gather information from acct instance.
-        info = (acct.type, acct.name, acct.amt)
+        info = (acct.type, acct.name, acct.amt, 'o')
         cur = conn.cursor()
         # Call SQL statement with necessary information to create account.
         cur.execute(d.sql_cmd['createAcct'], info)
@@ -164,7 +164,7 @@ def create_acct_object(conn, name):
     cur = conn.cursor()
     cur.execute(sql)
     # Fetch the account entry and parse the info into temp variables.
-    i, t, n, a = cur.fetchone()  # ID, Type, Name, Amount
+    i, t, n, a, s = cur.fetchone()  # ID, Type, Name, Amount, status(unused)
     # Create account object using fetched info.
     acct = c.account(t, n, a, id=i)
     return acct
@@ -324,3 +324,9 @@ def transfer(conn, fromName, toName, amt):
     create_transaction(conn, t, 'transfer')
     cur.execute(d.sql_cmd['updateEnv'], (fromEnv.amt, fromEnv.name))
     cur.execute(d.sql_cmd['updateEnv'], (toEnv.amt, toEnv.name))
+
+
+def close_account(conn, acctName):
+    """Close an account, but keeps in table for reference."""
+    cur = conn.cursor()
+    cur.execute(d.sql_cmd['closeAccount'], (acctName,))

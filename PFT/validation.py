@@ -383,10 +383,12 @@ def select_envelope(conn, mode):
             print("You didnt enter anything, please try again.")
 
 
-def select_account(conn):
+def select_account(conn, mode=''):
     """Selected account should be in list.
 
     See select_envelope() for details, similar process.
+    Mode may be 'close', in that case, check if account is
+    empty before closing. If not empty, cancel action.
 
     Called by f.transaction().
     """
@@ -406,7 +408,16 @@ def select_account(conn):
                 if i in ids:
                     id = ids.index(i)
                     acct = names[id]
-                    return acct
+                    if mode == 'close':
+                        # Create account obj to check amount.
+                        cls_acct = SQL.create_acct_object(conn, acct)
+                        if cls_acct.amt == 0:
+                            return acct
+                        else:
+                            input('Empty account before closing.')
+                            return 'q'
+                    else:
+                        return acct
                 else:
                     print("Select account by number.")
                     continue

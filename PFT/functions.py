@@ -289,5 +289,14 @@ def withdraw(conn):
     conn.commit()  # Move to SQL.transfer()?
 
 
+def close_acct(conn):
+    """Called from main menu."""
+    name = v.select_account(conn, 'close')
+    if name == 'q':
+        return
+    SQL.close_account(conn, name)
+    conn.commit()
+
+
 def quit(conn):
     conn.commit()
