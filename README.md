@@ -26,6 +26,7 @@ The goal is to help the user create, maintain, and manipulate a **zero-based** e
 - [ ] Figure out how to make mobile utility for viewing balances/creating transactions.
 - [ ] Package PFT for cross platform quick and easy deployment.
 - [ ] Add to this list.
+- [ ] Re-learn everything.
 
 ## Running PFT
 To run PFT, open a terminal window and navigate to the project folder.
