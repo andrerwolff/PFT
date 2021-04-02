@@ -31,7 +31,7 @@ class TestTableInit(unittest.TestCase):
         table names and the number of attributes for each table
         """
         # Connect to database
-        conn = sqlite3.Connection("test_db.db")
+        conn = sqlite3.Connection("test/test_db.db")
         c = conn.cursor()
 
         f.table_init(conn) # initialize tables
@@ -41,11 +41,11 @@ class TestTableInit(unittest.TestCase):
         table_names = [name[0] for name in result] #create list of table names
 
         # expected tables and the expected number of attributes
-        desired_tables = {'accounts': 4,
+        desired_tables = {'accounts': 5,
                           'groups': 2,
                           'envelopes': 4,
                           'transactions': 10,
-                          'payees':2}
+                          'payees':3}
 
         # Test that the  correct number of tables were made
         self.assertEqual(len(desired_tables), len(table_names))
@@ -107,7 +107,7 @@ class TestEnvGroupAcct(unittest.TestCase):
 
     def test_env_init(self):
         # Connect to database
-        conn = sqlite3.Connection("test_db.db")
+        conn = sqlite3.Connection("test/test_db.db")
         c = conn.cursor()
 
         # Initialize envelopes

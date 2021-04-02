@@ -40,7 +40,8 @@ class envelope(container):
     def envTransfer(self, envIn, amt, memo=''):
         self.amt -= amt
         envIn.amt = envIn.amt + amt
-        t = transaction(self, envIn, amt, 'transfer', memo)
+        payee = None
+        t = transaction(self, envIn, amt, 'transfer', payee, memo)
         return t
 
 
