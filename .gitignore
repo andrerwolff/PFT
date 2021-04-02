@@ -106,3 +106,4 @@ venv.bak/
 # additional
 \_\_pycache_\_
 *.db
+.vscode
